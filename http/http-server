@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+/*
+ *********************************************************************************
+ *                     Copyright (C) 2018 wystan
+ *
+ *       filename: http-server.js
+ *    description:
+ *        created: 2018-06-28 23:11:53
+ *         author: wystan
+ *
+ *********************************************************************************
+ */
+const server_port = 8088;
+const express = require('express');
+let app = express();
+app.use(express.static('static'));
+
+app.listen(server_port);
+console.log("http://localhost:" + server_port);
+
+/************************************* END **************************************/
+

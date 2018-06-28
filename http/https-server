@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+/*
+ *********************************************************************************
+ *                     Copyright (C) 2018 wystan
+ *
+ *       filename: https-server.js
+ *    description:
+ *        created: 2018-06-28 23:18:25
+ *         author: wystan
+ *
+ *********************************************************************************
+ */
+
+const server_port = 8081;
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
+const express = require('express');
+
+function main() {
+    let app = express();
+    let credentials = {
+        key: fs.readFileSync(__dirname + '/keys/key.pem', 'utf8'),
+        cert: fs.readFileSync(__dirname + '/keys/cert.pem', 'utf8')
+    };
+    app.use(express.static(__dirname + "/static"));
+
+    let server = https.createServer(credentials, app);
+    server.listen(server_port);
+    console.log("server started on:" + server_port );
+}
+
+main();
+
+/************************************* END **************************************/
+
