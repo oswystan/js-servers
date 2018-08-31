@@ -1,0 +1,103 @@
+#!/usr/bin/env node
+/*
+ *********************************************************************************
+ *                     Copyright (C) 2018 wystan
+ *
+ *       filename: api-server.js
+ *    description:
+ *        created: 2018-08-30 15:46:29
+ *         author: wystan
+ *
+ *********************************************************************************
+ */
+
+const log = (...args)=>{ console.log.call(console, new Date().toISOString(), ...args)};
+const express = require("express");
+const bodyParser = require('body-parser');
+const app = express();
+const PORT = 3000;
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json())
+
+
+class Runner {
+    constructor(name, done) {
+        this.name = name;
+        this.done = done;
+        this.operations = [];
+    }
+    static create(name, done) {
+        return new Runner(name, done);
+    }
+    build(commit) {
+        let f = function(commit) {
+            log(this.name, "build", commit.commits[0].id, "@", commit.ref);
+            this._next();
+        }
+        this.operations.push(f.bind(this, commit));
+        return this;
+    }
+    lint(commit) {
+        let f = function(commit) {
+            log(this.name, "lint", commit.commits[0].id, "@", commit.ref);
+            this._next();
+        }
+        this.operations.push(f.bind(this, commit));
+        return this;
+    }
+    deploy(commit) {
+        let f = function(commit) {
+            log(this.name, "deploy", commit.commits[0].id, "@", commit.ref);
+            this._next();
+        }
+        this.operations.push(f.bind(this, commit));
+        return this;
+    }
+    test(commit) {
+        let f = function(commit) {
+            log(this.name, "test", commit.commits[0].id, "@", commit.ref);
+            this._next();
+        }
+        this.operations.push(f.bind(this, commit));
+        return this;
+    }
+    go() {
+        let f = this.operations[0];
+        if (f) {
+            this.operations.splice(0,1);
+            setTimeout(f, 0);
+        } else {
+            this.done();
+        }
+        return this;
+    }
+    _next() {
+        let f = this.operations[0];
+        if (f) {
+            this.operations.splice(0, 1);
+            f();
+        } else {
+            this.done();
+        }
+    }
+}
+
+app.post("/", function(req, resp) {
+    function done(e) {
+        log("==>done");
+        resp.send("OK");
+    }
+
+    log("==>starting ...");
+    Runner.create("ares", done)
+        .build(req.body)
+        .lint(req.body)
+        .deploy(req.body)
+        .test(req.body)
+        .go();
+});
+
+app.listen(PORT, ()=>log("api-server is running on " + PORT));
+
+/************************************* END **************************************/
