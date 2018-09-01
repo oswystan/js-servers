@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+/*
+ *********************************************************************************
+ *                     Copyright (C) 2018 wystan
+ *
+ *       filename: restful-server.js
+ *    description:
+ *        created: 2018-06-28 23:51:59
+ *         author: wystan
+ *
+ *********************************************************************************
+ */
+
+const SERVER_PORT = 8080;
+
+const logi = (...args)=>console.info('I|'+new Date().toISOString(), ...args);
+const logw = (...args)=>console.warn('W|'+new Date().toISOString(), ...args);
+const loge = (...args)=>console.error('E|'+new Date().toISOString(), ...args);
+const logd = (...args)=>console.log('D|'+new Date().toISOString(), ...args);
+
+const express = require('express')
+const app = express();
+
+app.get("/users", (req, resp)=>{
+    resp.send("users");
+});
+
+app.get("/users/:id", (req, resp)=>{
+    resp.send("user"+req.params.id);
+});
+
+app.listen(SERVER_PORT);
+logi("listen on", SERVER_PORT);
+
+/************************************* END **************************************/
+
