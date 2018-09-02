@@ -21,23 +21,35 @@ class Chrome {
     constructor() {
         this.app = program[os.platform()];
         this.proc = null;
+        this.timer = -1;
     }
     go(url) {
-        this.proc = spawn(this.app, [ url ]);
+        this.proc = spawn(this.app, [ "--silent-launch", url ]);
         this.proc.on("exit", (code) => {
             console.log("exit with", code);
+            this.proc = null;
         });
+        return this;
     }
     kill() {
-        this.proc && this.proc.kill("SIGINT");
+        this.proc && this.proc.kill("SIGTERM");
+        this.proc = null;
+        return this;
+    }
+    timeout(ms = 5000) {
+        this.timer = setTimeout(()=>{
+            this.kill();
+        }, ms);
+        return this;
     }
 }
 
 function run_test() {
     let chrome = new Chrome();
-    chrome.go("https://www.sogou.com");
-    setTimeout(()=>{ chrome.kill(); }, 5000);
+    chrome.go("https://www.sogou.com").timeout();
 }
+
+//run_test();
 
 module.exports = Chrome;
 
